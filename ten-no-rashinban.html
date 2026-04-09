@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>天の羅針盤</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #0d0a07;
+      font-family: 'Noto Serif JP', serif;
+      color: #e8d5a3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px 64px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 20%, #1a0f02 0%, #0d0a07 60%),
+        radial-gradient(ellipse at 70% 80%, #070a15 0%, transparent 60%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes flicker { 0%,100%{opacity:1} 50%{opacity:0.85} }
+    @keyframes fadeIn  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes pulse   { 0%,100%{box-shadow:0 0 20px rgba(180,130,40,0.2)} 50%{box-shadow:0 0 35px rgba(180,130,40,0.45)} }
+    @keyframes spin    { to{transform:rotate(360deg)} }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .kanjideco {
+      font-size: 38px;
+      color: #8a6a2a;
+      opacity: 0.45;
+      font-weight: 300;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .title-block { text-align: center; }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      color: #e8d5a3;
+      text-shadow: 0 0 30px rgba(200,160,60,0.4);
+      animation: flicker 4s ease-in-out infinite;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      color: #7a6a4a;
+    }
+
+    .divider {
+      width: 100%;
+      max-width: 560px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #8a6a2a, transparent);
+      margin: 14px 0 26px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: rgba(20,14,6,0.88);
+      border: 1px solid #3a2a0a;
+      border-radius: 4px;
+      padding: 26px 22px;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 0 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(200,160,60,0.08);
+      animation: fadeIn 0.4s ease;
+    }
+
+    .desc {
+      text-align: center;
+      font-size: 13px;
+      line-height: 2.2;
+      color: #9a8a6a;
+      margin-bottom: 22px;
+    }
+
+    .input-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 22px;
+      width: 100%;
+    }
+
+    .input-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      width: 100%;
+    }
+
+    label {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: #7a6a4a;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid #4a3a1a;
+      border-radius: 2px;
+      padding: 10px 14px;
+      color: #e8d5a3;
+      font-size: 15px;
+      font-family: 'Noto Serif JP', serif;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    input[type="text"]::placeholder { color: #4a3a1a; }
+    input[type="text"]:focus { border-color: #8a6a2a; }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #4a3a1a, #2a1a06);
+      border: 1px solid #8a6a2a;
+      border-radius: 2px;
+      color: #e8d5a3;
+      font-size: 13px;
+      letter-spacing: 0.28em;
+      cursor: pointer;
+      font-family: 'Noto Serif JP', serif;
+      box-shadow: 0 0 20px rgba(180,130,40,0.12);
+      transition: opacity 0.2s;
+    }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .btn-sub {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      border: 1px solid #3a2a0a;
+      border-radius: 2px;
+      color: #7a6a4a;
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      font-family: 'Noto Serif JP', serif;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .region-label {
+      text-align: center;
+      font-size: 12px;
+      letter-spacing: 0.25em;
+      color: #8a6a2a;
+      margin-bottom: 16px;
+    }
+
+    .char-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px;
+      justify-content: center;
+      background: rgba(0,0,0,0.3);
+      padding: 16px 10px;
+      border-radius: 2px;
+      border: 1px solid #2a1a06;
+      min-height: 108px;
+    }
+
+    .char-cell {
+      font-size: 17px;
+      line-height: 1.7;
+      width: 1.6em;
+      text-align: center;
+      font-weight: 300;
+      transition: color 0.05s;
+    }
+
+    .generating {
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 0.3em;
+      color: #6a5a3a;
+      margin-top: 10px;
+      animation: flicker 1s ease-in-out infinite;
+    }
+
+    .step-label {
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      color: #8a6a2a;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .step-desc {
+      font-size: 12px;
+      line-height: 1.9;
+      color: #7a6a4a;
+      margin-bottom: 18px;
+    }
+
+    .copy-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #4a3a1a, #2a1a06);
+      border: 1px solid #8a6a2a;
+      border-radius: 2px;
+      color: #e8d5a3;
+      font-size: 13px;
+      letter-spacing: 0.28em;
+      cursor: pointer;
+      font-family: 'Noto Serif JP', serif;
+      animation: pulse 2.5s ease-in-out infinite;
+      margin-bottom: 16px;
+    }
+
+    .prompt-preview {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid #2a1a06;
+      border-radius: 2px;
+      padding: 14px;
+      margin-bottom: 18px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .preview-label {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: #5a4a2a;
+      margin-bottom: 8px;
+    }
+
+    .preview-text {
+      font-size: 11px;
+      line-height: 1.8;
+      color: #7a6a4a;
+      white-space: pre-wrap;
+      font-family: 'Noto Serif JP', serif;
+      overflow-x: hidden;
+      word-break: break-all;
+    }
+
+    .ai-section {
+      border-top: 1px solid #2a1a06;
+      padding-top: 16px;
+      margin-top: 4px;
+    }
+
+    .ai-label {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: #5a4a2a;
+      margin-bottom: 12px;
+    }
+
+    .ai-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ai-link {
+      flex: 1;
+      min-width: 80px;
+      text-align: center;
+      padding: 10px 8px;
+      border: 1px solid;
+      border-radius: 2px;
+      font-size: 13px;
+      letter-spacing: 0.15em;
+      font-family: 'Noto Serif JP', serif;
+      text-decoration: none;
+      opacity: 0.75;
+      transition: opacity 0.2s;
+    }
+    .ai-link:hover { opacity: 1; }
+
+    .hidden { display: none; }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 26px;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: #3a2a0a;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span class="kanjideco">天</span>
+    <div class="title-block">
+      <h1>天の羅針盤</h1>
+      <p class="subtitle">Ten no Rashinban — Compass of Heaven</p>
+    </div>
+    <span class="kanjideco">導</span>
+  </header>
+
+  <div class="divider"></div>
+
+  <!-- PHASE 1: 入力 -->
+  <div class="card" id="phase-input">
+    <p class="desc">
+      行先を知りたい地の名を入力せよ。<br>
+      天が50の文字を紡ぎ、汝の行く先を告げるであろう。
+    </p>
+    <div class="input-stack">
+      <div class="input-wrap">
+        <label>◇ 県名（都道府県）</label>
+        <input type="text" id="prefecture" placeholder="例：広島">
+      </div>
+      <div class="input-wrap">
+        <label>◇ 都市名（市区町村）</label>
+        <input type="text" id="city" placeholder="例：廿日市">
+      </div>
+      <div class="input-wrap">
+        <label>◇ 地域名（任意・より精度が増す）</label>
+        <input type="text" id="area" placeholder="例：宮島口、佐伯区（省略可）">
+      </div>
+    </div>
+    <button class="btn" id="btn-generate" onclick="startGeneration()" disabled>
+      ◈ 文字を召喚する ◈
+    </button>
+  </div>
+
+  <!-- PHASE 2: 文字表示 -->
+  <div class="card hidden" id="phase-chars">
+    <p class="region-label" id="region-label"></p>
+    <div class="char-grid" id="char-grid"></div>
+    <p class="generating hidden" id="generating-text">文字 召喚中…</p>
+    <div class="btn-row hidden" id="char-actions">
+      <button class="btn-sub" onclick="startGeneration()">再召喚</button>
+      <button class="btn-sub" onclick="reset()">最初に戻る</button>
+    </div>
+  </div>
+
+  <!-- PHASE 3: コピー＆AIリンク -->
+  <div class="card hidden" id="phase-copy">
+    <p class="step-label">② AIに貼り付けて解読してもらう</p>
+    <p class="step-desc">下のボタンで質問文をコピーし、お好みのAIに貼り付けてください。</p>
+    <button class="copy-btn" id="copy-btn" onclick="handleCopy()">◈ 質問文をコピーする ◈</button>
+    <div class="prompt-preview hidden" id="prompt-preview">
+      <p class="preview-label">コピーされた内容（プレビュー）</p>
+      <pre class="preview-text" id="preview-text"></pre>
+    </div>
+    <div class="ai-section">
+      <p class="ai-label">▷ 貼り付け先のAIを開く</p>
+      <div class="ai-links">
+        <a class="ai-link" href="https://claude.ai" target="_blank" style="border-color:#c8a870;color:#c8a870;">Claude →</a>
+        <a class="ai-link" href="https://chat.openai.com" target="_blank" style="border-color:#7ac8a8;color:#7ac8a8;">ChatGPT →</a>
+        <a class="ai-link" href="https://gemini.google.com" target="_blank" style="border-color:#a8b8e8;color:#a8b8e8;">Gemini →</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>天の羅針盤 — 天は行く先を知っている</footer>
+
+  <script>
+    const HIRAGANA   = 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん';
+    const KATAKANA   = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+    const NUMBERS    = '0123456789';
+    const PUNCTUATION= '、。・「」『』〜！？…ー〇◯△▲□■◆◇';
+    const ALL_CHARS  = HIRAGANA + KATAKANA + NUMBERS + PUNCTUATION;
+
+    let finalChars = [];
+    let intervalId = null;
+
+    function randomChar() {
+      return ALL_CHARS[Math.floor(Math.random() * ALL_CHARS.length)];
+    }
+    function generateChars() {
+      return Array.from({ length: 50 }, randomChar);
+    }
+    function getCharColor(c) {
+      if (HIRAGANA.includes(c))    return '#e8d5a3';
+      if (KATAKANA.includes(c))    return '#a3c4e8';
+      if (NUMBERS.includes(c))     return '#c8a3e8';
+      return '#e8a3a3';
+    }
+
+    // 入力監視
+    ['prefecture','city'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        const ok = document.getElementById('prefecture').value.trim() &&
+                   document.getElementById('city').value.trim();
+        document.getElementById('btn-generate').disabled = !ok;
+      });
+    });
+
+    function renderChars(chars, animating) {
+      const grid = document.getElementById('char-grid');
+      grid.innerHTML = '';
+      chars.forEach(c => {
+        const span = document.createElement('span');
+        span.className = 'char-cell';
+        span.textContent = c;
+        span.style.color = animating
+          ? `hsl(${Math.random()*60+30},80%,70%)`
+          : getCharColor(c);
+        grid.appendChild(span);
+      });
+    }
+
+    function startGeneration() {
+      const prefecture = document.getElementById('prefecture').value.trim();
+      const city       = document.getElementById('city').value.trim();
+      if (!prefecture || !city) return;
+
+      clearInterval(intervalId);
+
+      // フェーズ切替
+      document.getElementById('phase-input').classList.add('hidden');
+      document.getElementById('phase-chars').classList.remove('hidden');
+      document.getElementById('phase-copy').classList.add('hidden');
+      document.getElementById('generating-text').classList.remove('hidden');
+      document.getElementById('char-actions').classList.add('hidden');
+
+      // 地域ラベル
+      const area = document.getElementById('area').value.trim();
+      const parts = [prefecture, city, area].filter(Boolean);
+      document.getElementById('region-label').textContent = '◆ ' + parts.join(' / ') + ' ◆';
+
+      let count = 0;
+      renderChars(generateChars(), true);
+      intervalId = setInterval(() => {
+        renderChars(generateChars(), true);
+        count++;
+        if (count > 18) {
+          clearInterval(intervalId);
+          finalChars = generateChars();
+          renderChars(finalChars, false);
+          document.getElementById('generating-text').classList.add('hidden');
+          document.getElementById('char-actions').classList.remove('hidden');
+          document.getElementById('phase-copy').classList.remove('hidden');
+          document.getElementById('copy-btn').textContent = '◈ 質問文をコピーする ◈';
+          document.getElementById('prompt-preview').classList.add('hidden');
+        }
+      }, 80);
+    }
+
+    function buildPrompt() {
+      const prefecture = document.getElementById('prefecture').value.trim();
+      const city       = document.getElementById('city').value.trim();
+      const area       = document.getElementById('area').value.trim();
+      const locationStr = [prefecture, city, area].filter(Boolean).join(' ');
+      const charString  = finalChars.join('');
+      return `【ランダム文字列による場所診断】
+
+以下のランダムな50文字を使って、指定エリアの「おすすめスポット」を1〜3件教えてください。
+
+■ 文字列：
+${charString}
+
+■ 対象エリア：${locationStr}
+
+【ルール】
+・文字列の音の響き、カタカナ・ひらがな・数字・記号の出現バランス、文字の並びのリズムを手がかりにして場所を選んでください。
+・神社・寺・仏閣などの宗教施設は選ばないこと。
+・カフェ、飲食店、居酒屋、書店、雑貨店、公園、商店街、市場、美術館・博物館、映画館、スーパー、ショッピングモール、温泉、自然スポット、観光地など、生活に身近な場所を中心に選ぶこと。
+
+【回答フォーマット】
+━━ 文字列の読み取り ━━
+（文字のバランスや並びから感じたことを2〜3行で）
+
+━━ おすすめスポット ━━
+（場所名と住所または特徴を1〜3件）
+
+━━ それぞれを選んだ理由 ━━
+（文字列のどの特徴がその場所と対応しているか）
+
+━━ おすすめの時間帯 ━━
+（朝・昼・夕・夜のいつ行くのが良いか）`;
+    }
+
+    function handleCopy() {
+      const prompt = buildPrompt();
+      navigator.clipboard.writeText(prompt).then(() => {
+        document.getElementById('copy-btn').textContent = '✓ コピーしました！';
+        document.getElementById('preview-text').textContent = prompt;
+        document.getElementById('prompt-preview').classList.remove('hidden');
+        setTimeout(() => {
+          document.getElementById('copy-btn').textContent = '◈ 質問文をコピーする ◈';
+        }, 3000);
+      });
+    }
+
+    function reset() {
+      clearInterval(intervalId);
+      finalChars = [];
+      document.getElementById('phase-input').classList.remove('hidden');
+      document.getElementById('phase-chars').classList.add('hidden');
+      document.getElementById('phase-copy').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
